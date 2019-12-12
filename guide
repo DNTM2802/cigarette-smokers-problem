@@ -1,0 +1,56 @@
+SHARED_DATA *sh já existe e já está inicializado
+
+aceder ao índice do mutex --> sh->mutex (índices são fixos)
+
+8 semáforos:
+
+- mutex
+
+- semaforos ingredient[3] -> usados pelos watchers para esperarem que os agentes produzam cada um dos ingredientes
+
+
+- waitCigarette -> usado pelo agent para esperar pelo smoker
+
+- wait2Ings[3] -> Usado pelos smokers para esperarem pelos wathcers
+
+O que conseguimos fazer com sh->ingredient[0] ? (Por exemplo)
+Fazemos up e down.
+
+Dentro da shared_mem:
+
+fullstate -> temos uma estrutura stat e várias infos partilhadas (n de ingredientes, n de smokers,..... etc)
+
+
+agentStat vai conter o estado do agente, wacherStat o stat do watcher, etc...
+Onde ir buscar os estados?
+
+NOTA: Cada entidade altera apenas o seu estado! O agente nao altera o estado nem do watcher nem do smoker, o watcher[0] só altera o estado do watcher[0]... etc
+
+Como alteram o estado?
+sh->fst.st.watcherStat[1] = WAITING_ING
+
+Depois de alterar um estado -> gravar essa alteração. Savestate -> acrescenta uma linha à tabela.fazer savestate -> saveState(nFic, &sh->fst) --> ISTO (SÓ) DEVE SER FEITO DENTRO DA REGIÃO CRÍTICA
+
+Sempre que fazemos semup ou semdown devemos verificar as condições de erro, tal como ja está feito no mutex.
+
+Update Doxygen: cd doc | doxygen | firefox html/index.html
+
+$ cd src
+$ make all.bin
+$ cd ../run
+$ probSemSharedMemSmokers
+Correr todos os binarios que foram fornecidos sem testar o trabalho
+
+$ cd ../src
+$ make sm -> compila o nosso smoker mas utiliza os binarios que ja existem para os agentes e para os watchers.
+$ cd ../run
+$ probSemSharedMemSmokers
+ctrl-c --> Os semaforos e a mem partilhada n foram destruidos
+fazer:
+$ ipcs 
+-> anotar key do array de semaforos, sharedmem
+-> editar clenan.sh alterando as chaves dos recursos e remover
+$ ./clean.sh
+
+
+
