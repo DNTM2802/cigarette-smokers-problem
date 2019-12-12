@@ -170,9 +170,9 @@ static bool waitForIngredients (int id)
     }
 
     /* TODO: insert your code here */
-    while (sh->fSt.closing == false || sh->wait2Ings[id] == 0){}
+    while (sh->fSt.closing == false && sh->wait2Ings[id] == 0){}
 
-    if (semDown (semgid, sh->mutex) == -1)  {                                                     /* enter critical region */
+    if (semDown (semgid, sh->mutex) == -1)  {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (SM)");
         exit (EXIT_FAILURE);
     }
