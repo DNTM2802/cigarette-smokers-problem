@@ -158,10 +158,6 @@ static bool waitForIngredients (int id)
 
     /* TODO: insert your code here */
     sh->fSt.st.smokerStat[id] = WAITING_2ING;
-    if (semDown (semgid, sh->wait2Ings[id]) == -1) {                                               /* exit critical region */
-        perror ("error on the up operation for semaphore access (SM)");
-        exit (EXIT_FAILURE);
-    }
     saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
@@ -170,7 +166,11 @@ static bool waitForIngredients (int id)
     }
 
     /* TODO: insert your code here */
-    while (sh->fSt.closing == false && sh->wait2Ings[id] == 0){}
+   
+    if (semDown (semgid, sh->wait2Ings[id]) == -1) {                                               /* exit critical region */
+        perror ("error on the up operation for semaphore access (SM)");
+        exit (EXIT_FAILURE);
+    }
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (SM)");
@@ -181,6 +181,9 @@ static bool waitForIngredients (int id)
     if (sh->fSt.closing==false){
         ret = false;
     }
+
+    // tirar os ingredientes
+
     saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
@@ -259,6 +262,7 @@ static void smoke(int id)
     double smokingTime = 100.0 + normalRand(30.0);
     usleep(smokingTime);
     saveState(nFic, &sh->fSt);
+    sh->fSt.nCigarettes[id]+=1;
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (SM)");
@@ -266,7 +270,7 @@ static void smoke(int id)
     }
 
     /* TODO: insert your code here */
-    sh->fSt.nCigarettes[id]+=1;
+    
 
 }
 
