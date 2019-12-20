@@ -184,7 +184,7 @@ static bool waitForIngredients (int id)
         ret = false;
     } else {
         
-        // UPDATE INVENTÁRIO
+        // UPDATE INVENTORY
         if (id==0){
             sh->fSt.ingredients[1]-=1;
             sh->fSt.ingredients[2]-=1;
@@ -217,10 +217,6 @@ static bool waitForIngredients (int id)
  */
 static void rollingCigarette (int id)
 {
-    double rollingTime = 100.0 + normalRand(30.0);
-    while (rollingTime <= 0){
-        rollingTime = 100.0 + normalRand(30.0);
-    }
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                     /* enter critical region */
         perror ("error on the up operation for semaphore access (SM)");
@@ -229,15 +225,19 @@ static void rollingCigarette (int id)
 
     // UPDATE STATE
     sh->fSt.st.smokerStat[id] = ROLLING;
-    
-    // TAKE SOME TIME
-    usleep(rollingTime);
     saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (SM)");
         exit (EXIT_FAILURE);
     }
+
+    // TAKE SOME TIME
+    double rollingTime = 100.0 + normalRand(30.0);
+    while (rollingTime <= 0){
+        rollingTime = 100.0 + normalRand(30.0);
+    }
+    usleep(rollingTime);
     
     // NOTIFY THE AGENT
     if (semUp (semgid, sh->waitCigarette) == -1) {
