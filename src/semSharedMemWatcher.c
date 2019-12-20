@@ -141,6 +141,7 @@ static bool waitForIngredient(int id)
 
     // UPDATE STATE
     sh->fSt.st.watcherStat[id] = WAITING_ING;
+    saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
@@ -228,6 +229,8 @@ static int updateReservations (int id)
         sh->fSt.reserved[1] = 0;
         sh->fSt.reserved[2] = 0;
     }
+
+    saveState(nFic, &sh->fSt);
     
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
@@ -255,6 +258,7 @@ static void informSmoker (int id, int smokerReady)
 
     // UPDATE STATE
     sh->fSt.st.watcherStat[id] = INFORMING;
+    saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");

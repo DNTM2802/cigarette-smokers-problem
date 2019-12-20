@@ -126,21 +126,45 @@ int main (int argc, char *argv[])
  */
 static void prepareIngredients ()
 {
-
+    int ing1;
+    int ing2;
 
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    // UPDATE AGENT STATE
+    sh->fSt.st.agentStat = PREPARING;
+
+    // GENERATE 2 RANDOM INGREDIENTS
+    ing1 = (rand() % (2 + 1));
+    ing2 = (rand() % (2 + 1));
+    while ( ing1 == ing2 ){
+       ing2 = (rand() % (2 + 1)); 
+    }
+
+    // UPDATE INVENTORY
+    sh->fSt.ingredients[ing1] +=1;
+    sh->fSt.ingredients[ing2] +=1;
+
+    saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    // NOTIFY RESPECTIVE WATCHERS THAT A NEW INGREDIENTWAS PRODUCED
+    if (semUp (semgid, sh->ingredient[ing1]) == -1)  {                                                
+        perror ("error on the up operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
+
+    if (semUp (semgid, sh->ingredient[ing2]) == -1)  {                                                
+        perror ("error on the up operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 
 }
 
@@ -157,14 +181,21 @@ static void waitForCigarette ()
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    // UPDATE AGENT STATE
+    sh->fSt.st.agentStat = WAITING_CIG;
+
+    saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    // WAITING FOR SMOKER TO COMPLETE ROLLING CIGARETTE
+    if (semDown (semgid, sh->waitCigarette) == -1) {
+        perror ("error on the down operation for semaphore access (SM)");
+        exit (EXIT_FAILURE);
+    }
 }
 
 /**
@@ -179,13 +210,32 @@ static void closeFactory ()
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    // UPDATE STATE AND FACTORY IS CLOSING
+    sh->fSt.st.agentStat = CLOSING_A;
+    sh->fSt.closing = true;
+
+    saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    // AWAKE WATCHERS
+    if (semUp (semgid, sh->ingredient[0]) == -1) {
+        perror ("error on the up operation for semaphore access (AG)");
+        exit (EXIT_FAILURE);
+    }
+
+    if (semUp (semgid, sh->ingredient[1]) == -1) {
+        perror ("error on the up operation for semaphore access (AG)");
+        exit (EXIT_FAILURE);
+    }
+
+    if (semUp (semgid, sh->ingredient[2]) == -1) {
+        perror ("error on the up operation for semaphore access (AG)");
+        exit (EXIT_FAILURE);
+    }
+
 }
 

@@ -242,8 +242,6 @@ static void rollingCigarette (int id)
         exit (EXIT_FAILURE);
     }
 
-
-
 }
 
 /**
@@ -263,11 +261,11 @@ static void smoke(int id)
 
     // UPDATE STATE
     sh->fSt.st.smokerStat[id] = SMOKING;
-    
-    saveState(nFic, &sh->fSt);
 
     // UPDATE NUMBER OF CIGARETTES SMOKED
     sh->fSt.nCigarettes[id]+=1;
+
+    saveState(nFic, &sh->fSt);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (SM)");
