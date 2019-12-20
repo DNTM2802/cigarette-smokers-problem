@@ -218,6 +218,9 @@ static bool waitForIngredients (int id)
 static void rollingCigarette (int id)
 {
     double rollingTime = 100.0 + normalRand(30.0);
+    while (rollingTime <= 0){
+        rollingTime = 100.0 + normalRand(30.0);
+    }
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                     /* enter critical region */
         perror ("error on the up operation for semaphore access (SM)");
@@ -274,7 +277,10 @@ static void smoke(int id)
 
     // TAKE SOME TIME TO SMOKE
     double smokingTime = 100.0 + normalRand(30.0);
-    sleep(smokingTime/1000000);
+    while (smokingTime <= 0){
+        smokingTime = 100.0 + normalRand(30.0);
+    }
+    usleep(smokingTime);
     
 
 }
