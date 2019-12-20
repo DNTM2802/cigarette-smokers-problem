@@ -53,4 +53,13 @@ $ ipcs
 $ ./clean.sh
 
 
+como fechar a fabrica?
+
+o agente notifica os watchers que a fabrica fechou
+os watchers notificam os smokers que a fabrica fechou
+
+o agente coloca o closing a true e notifica os wathcers atraves dos semaforos. em que semaforo? os watchers vao estar à espera do seu ingrediente num determinado semaforo... 
+agente poe bool closing = true -> acorda os watchers (como se estivesse a produzir mais 3 ingredientes) , os watchers recebem a flag bool closing = true, notificam os smokers.
+os watchers usam o mesmo semaforo que lhes diz que podem fumar para os notificar que a fabrica fechou.
+
 
